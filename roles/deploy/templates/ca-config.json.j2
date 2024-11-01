@@ -12,6 +12,14 @@
             "client auth"
         ],
         "expiry": "{{ CERT_EXPIRY }}"
+      },
+      "kcfg": {
+        "usages": [
+            "signing",
+            "key encipherment",
+            "client auth"
+        ],
+        "expiry": "{{ CUSTOM_EXPIRY }}"
       }
     }
   }

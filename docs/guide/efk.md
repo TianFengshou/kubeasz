@@ -1,5 +1,7 @@
 ### 第一部分：EFK
 
+本文档已过期(deprecated)
+
 `EFK` 插件是`k8s`项目的一个日志解决方案，它包括三个组件：[Elasticsearch](), [Fluentd](), [Kibana]()；Elasticsearch 是日志存储和日志搜索引擎，Fluentd 负责把`k8s`集群的日志发送给 Elasticsearch, Kibana 则是可视化界面查看和检索存储在 ES 中的数据。
 - 建议在熟悉本文档内容后使用[Log-Pilot + ES + Kibana 日志方案](log-pilot.md)
 
@@ -15,8 +17,8 @@
 ### 安装
 
 ``` bash
-$ kubectl apply -f /etc/ansible/manifests/efk/
-$ kubectl apply -f /etc/ansible/manifests/efk/es-without-pv/
+$ kubectl apply -f /etc/kubeasz/manifests/efk/
+$ kubectl apply -f /etc/kubeasz/manifests/efk/es-without-pv/
 ```
 
 ### 验证
@@ -41,9 +43,14 @@ $ kubectl logs -n kube-system kibana-logging-d5cffd7c6-9lz2p -f
 
 ### 访问 Kibana
 
-推荐使用`kube-apiserver`方式访问（可以使用basic-auth、证书和rbac等方式进行认证授权），获取访问 URL
+推荐使用`kube-apiserver`方式访问（可以使用证书和rbac等方式进行认证授权），获取访问 URL
 
-- 开启 apiserver basic-auth(用户名/密码认证)：`easzctl basic-auth -s -u admin -p test1234`
+- 使用证书登录(生成kubecfg.p12，并将证书下载到本地安装)：
+```bash
+grep 'client-certificate-data' ~/.kube/config | head -n 1 | awk '{print $2}' | base64 -d > kubecfg.crt
+grep 'client-key-data' ~/.kube/config | head -n 1 | awk '{print $2}' | base64 -d > kubecfg.key
+openssl pkcs12 -export -clcerts -inkey kubecfg.key -in kubecfg.crt -out kubecfg.p12 -name "kubernetes-client"
+```
 
 ``` bash
 $ kubectl cluster-info | grep Kibana
@@ -75,12 +82,12 @@ Kibana is running at https://192.168.1.10:8443/api/v1/namespaces/kube-system/ser
 
 ``` bash
 # 如果之前已经安装了默认的EFK，请用以下两个命令先删除它
-$ kubectl delete -f /etc/ansible/manifests/efk/
-$ kubectl delete -f /etc/ansible/manifests/efk/es-without-pv/
+$ kubectl delete -f /etc/kubeasz/manifests/efk/
+$ kubectl delete -f /etc/kubeasz/manifests/efk/es-without-pv/
 
 # 安装静态PV 的 EFK
-$ kubectl apply -f /etc/ansible/manifests/efk/
-$ kubectl apply -f /etc/ansible/manifests/efk/es-static-pv/
+$ kubectl apply -f /etc/kubeasz/manifests/efk/
+$ kubectl apply -f /etc/kubeasz/manifests/efk/es-static-pv/
 ```
 + 目录`es-static-pv` 下首先是利用 NFS服务预定义了三个 PV资源，然后在 `es-statefulset.yaml`定义中使用 `volumeClaimTemplates` 去匹配使用预定义的 PV资源；注意 PV参数：`accessModes` `storageClassName` `storage`容量大小必须两边匹配。 
 
@@ -138,13 +145,13 @@ es0  es1  es2
 
 ``` bash
 # 如果之前已经安装了默认的EFK或者静态PV EFK，请用以下命令先删除它
-$ kubectl delete -f /etc/ansible/manifests/efk/
-$ kubectl delete -f /etc/ansible/manifests/efk/es-without-pv/
-$ kubectl delete -f /etc/ansible/manifests/efk/es-static-pv/
+$ kubectl delete -f /etc/kubeasz/manifests/efk/
+$ kubectl delete -f /etc/kubeasz/manifests/efk/es-without-pv/
+$ kubectl delete -f /etc/kubeasz/manifests/efk/es-static-pv/
 
 # 安装动态PV 的 EFK
-$ kubectl apply -f /etc/ansible/manifests/efk/
-$ kubectl apply -f /etc/ansible/manifests/efk/es-dynamic-pv/
+$ kubectl apply -f /etc/kubeasz/manifests/efk/
+$ kubectl apply -f /etc/kubeasz/manifests/efk/es-dynamic-pv/
 ```
 + 首先 `nfs-client-provisioner.yaml` 创建一个工作 POD，它监听集群的 PVC请求，并当 PVC请求来到时调用 `nfs-client` 去请求 `nfs-server`的存储资源，成功后即动态生成对应的 PV资源。
 + `nfs-dynamic-storageclass.yaml` 定义 NFS存储类型的类型名 `nfs-dynamic-class`，然后在 `es-statefulset.yaml`中必须使用这个类型名才能动态请求到资源。
@@ -208,7 +215,7 @@ $ curl -X DELETE elasticsearch-logging:9200/logstash-xxxx.xx.xx
 基于 alpine:3.8 创建镜像`es-index-rotator` [查看Dockerfile](../../dockerfiles/es-index-rotator/Dockerfile)，然后创建一个cronjob去完成清理任务
 
 ```
-$ kubectl apply -f /etc/ansible/manifests/efk/es-index-rotator/
+$ kubectl apply -f /etc/kubeasz/manifests/efk/es-index-rotator/
 ```
 
 #### 验证日志清理

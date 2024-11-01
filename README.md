@@ -1,14 +1,64 @@
-# ![kubeasz](pics/logo_kubeasz.png)
+<img alt="kubeasz-logo" width="320" height="100" src="pics/kubeasz.svg">  <a href="docs/mixes/conformance.md"><img align="right" alt="conformance-icon" width="75" height="100" src="https://www.cncf.io/wp-content/uploads/2020/07/certified_kubernetes_color-1.png"></a>
 
-项目致力于提供快速部署高可用`k8s`集群的工具, 同时也努力成为`k8s`实践、使用的参考书；基于二进制方式部署和利用`ansible-playbook`实现自动化；既提供一键安装脚本, 也可以根据`安装指南`分步执行安装各个组件。
+**kubeasz** 致力于提供快速部署高可用`k8s`集群的工具, 同时也努力成为`k8s`实践、使用的参考书；基于二进制方式部署和利用`ansible-playbook`实现自动化；既提供一键安装脚本, 也可以根据`安装指南`分步执行安装各个组件。
 
-- **集群特性** `TLS`双向认证、`RBAC`授权、[多Master高可用](docs/setup/00-planning_and_overall_intro.md#ha-architecture)、支持`Network Policy`、备份恢复、[离线安装](docs/setup/offline_install.md)
-- **集群版本** kubernetes v1.14, v1.15, v1.16, v1.17
-- **操作系统** CentOS/RedHat 7, Debian 9/10, Ubuntu 1604/1804
-- **运行时** docker 18.06.x-ce, 18.09.x, 19.03.x [containerd](docs/guide/containerd.md) 1.2.6
+**kubeasz** 从每一个单独部件组装到完整的集群，提供最灵活的配置能力，几乎可以设置任何组件的任何参数；同时又为集群创建预置一套运行良好的默认配置，甚至自动化创建适合大规模集群的[BGP Route Reflector网络模式](docs/setup/network-plugin/calico-bgp-rr.md)。
+
+- **集群特性** [Master高可用](docs/setup/00-planning_and_overall_intro.md#ha-architecture)、[离线安装](docs/setup/offline_install.md)、[多架构支持(amd64/arm64)](docs/setup/multi_platform.md)
+- **集群版本** kubernetes v1.24, v1.25, v1.26, v1.27, v1.28, v1.29, v1.30
+- **运行时** [containerd](docs/setup/03-container_runtime.md) v1.6.x, v1.7.x
 - **网络** [calico](docs/setup/network-plugin/calico.md), [cilium](docs/setup/network-plugin/cilium.md), [flannel](docs/setup/network-plugin/flannel.md), [kube-ovn](docs/setup/network-plugin/kube-ovn.md), [kube-router](docs/setup/network-plugin/kube-router.md)
 
-请阅读[项目分支说明](docs/mixes/branch.md), 欢迎提[Issues](https://github.com/easzlab/kubeasz/issues)和[PRs](docs/mixes/HowToContribute.md)参与维护项目！感谢您的关注与支持！
+
+**[news]** kubeasz 通过cncf一致性测试 [详情](docs/mixes/conformance.md)
+
+推荐版本对照
+
+<table>
+  <thead>
+    <tr>
+      <td>Kubernetes</td>
+      <td>1.22</td>
+      <td>1.23</td>
+      <td>1.24</td>
+      <td>1.25</td>
+      <td>1.26</td>
+      <td>1.27</td>
+      <td>1.28</td>
+      <td>1.29</td>
+      <td>1.30</td>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>kubeasz</td>
+      <td>3.1.1</td>
+      <td>3.2.0</td>
+      <td>3.6.2</td>
+      <td>3.6.2</td>
+      <td>3.6.2</td>
+      <td>3.6.2</td>
+      <td>3.6.2</td>
+      <td>3.6.3</td>
+      <td>3.6.4</td>
+    </tr>
+  </tbody>
+</table>
+
+## 支持系统
+
+- **Alibaba Linux** 2.1903, 3.2104([notes](docs/setup/multi_os.md#Alibaba))
+- **Alma Linux** 8, 9
+- **Anolis OS** 8.x RHCK, 8.x ANCK
+- **CentOS/RHEL** 7, 8, 9
+- **Debian** 10, 11([notes](docs/setup/multi_os.md#Debian))
+- **Fedora** 34, 35, 36, 37
+- **Kylin Linux Advanced Server V10** 麒麟V10 Tercel, Lance
+- **openSUSE** Leap 15.x([notes](docs/setup/multi_os.md#openSUSE))
+- **Rocky Linux** 8, 9
+- **Ubuntu** 16.04, 18.04, 20.04, 22.04, 24.04
+
+能够支持大部分使用systemd的linux发行版，如果安装有问题先请查看[文档](docs/setup/multi_os.md)；如果某个能够支持安装的系统没有在列表中，欢迎提PR 告知。
 
 ## 快速指南
 
@@ -25,14 +75,11 @@
     </tr>
     <tr>
         <td><a href="docs/setup/01-CA_and_prerequisite.md">01-创建证书和安装准备</a></td>
-        <td><a href="docs/setup/03-install_docker.md">03-安装docker服务</a></td>
+        <td><a href="docs/setup/03-container_runtime.md">03-安装容器运行时</a></td>
         <td><a href="docs/setup/05-install_kube_node.md">05-安装node节点</a></td>
         <td><a href="docs/setup/07-install_cluster_addon.md">07-安装集群插件</a></td>
     </tr>
 </table>
-
-- 命令行工具 [easzctl介绍](docs/setup/easzctl_cmd.md)
-- 公有云自建集群 [部署指南](docs/setup/kubeasz_on_public_cloud.md)
 
 ## 使用指南
 
@@ -44,7 +91,6 @@
         <td><a href="docs/guide/metrics-server.md">metrics-server</a></td>
         <td><a href="docs/guide/prometheus.md">prometheus</a></td>
         <td><a href="docs/guide/efk.md">efk</a></td>
-        <td><a href="docs/guide/ingress.md">ingress</a></td>
     </tr>
     <tr>
         <td><strong>集群管理</strong><a href="docs/op/op-index.md">+</a></td>
@@ -53,14 +99,12 @@
         <td><a href="docs/op/op-etcd.md">管理etcd节点</a></td>
         <td><a href="docs/op/upgrade.md">升级集群</a></td>
         <td><a href="docs/op/cluster_restore.md">备份恢复</a></td>
-        <td><a href=""></a></td>
     </tr>
     <tr>
         <td><strong>特性实验</strong></td>
         <td><a href="docs/guide/networkpolicy.md">NetworkPolicy</a></td>
         <td><a href="docs/guide/rollingupdateWithZeroDowntime.md">RollingUpdate</a></td>
         <td><a href="docs/guide/hpa.md">HPA</a></td>
-        <td><a href=""></a></td>
         <td><a href=""></a></td>
         <td><a href=""></a></td>
     </tr>
@@ -70,40 +114,23 @@
         <td><a href="docs/guide/helm.md">helm</a></td>
         <td><a href="docs/guide/jenkins.md">jenkins</a></td>
         <td><a href="docs/guide/gitlab/readme.md">gitlab</a></td>
-        <td><a href=""></a></td>
-        <td><a href=""></a></td>
-    </tr>
-    <tr>
-        <td><strong>应用实践</strong></td>
-        <td><a href="docs/practice/go_web_app/">go web应用部署</a></td>
-        <td><a href="docs/practice/java_war_app.md">java应用部署</a></td>
-        <td><a href="docs/practice/es_cluster.md">elasticsearch集群</a></td>
-        <td><a href="docs/practice/mariadb_cluster.md">mariadb集群</a></td>
-        <td><a href=""></a></td>
-        <td><a href=""></a></td>
-    </tr>
-    <tr>
-        <td><strong>推荐工具</strong></td>
-        <td><a href="docs/guide/kuboard.md">kuboard</a></td>
-        <td><a href="https://github.com/derailed/k9s">k9s</a></td>
-        <td><a href="https://github.com/vmware-tanzu/octant">octant</a></td>
-        <td><a href="docs/guide/kubesphere.md">KubeSphere容器平台</a></td>
-        <td><a href=""></a></td>
+        <td><a href="docs/guide/argocd.md">argocd</a></td>
         <td><a href=""></a></td>
     </tr>
 </table>
 
 ## 沟通交流
 
-- 微信群：k8s&kubeasz实践, 搜索微信号`badtobone`, 请备注（城市-github用户名）, 验证通过会加入群聊。
+- 微信：k8s&kubeasz实践, 搜索微信号`badtobone`, 请按格式备注（${城市}-${github用户名}）, 验证后加入群聊。
 - 推荐阅读
+  - [kubernetes架构师课程](https://www.toutiao.com/c/user/token/MS4wLjABAAAA0YFomuMNm87NNysXeUsQdI0Tt3gOgz8WG_0B3MzxsmI/?tab=article)
   - [kubernetes-the-hard-way](https://github.com/kelseyhightower/kubernetes-the-hard-way)
   - [feisky-Kubernetes 指南](https://github.com/feiskyer/kubernetes-handbook/blob/master/SUMMARY.md)
-  - [rootsongjc-Kubernetes 指南](https://github.com/rootsongjc/kubernetes-handbook)
   - [opsnull 安装教程](https://github.com/opsnull/follow-me-install-kubernetes-cluster)
 
 ## 贡献&致谢
 
+欢迎提[Issues](https://github.com/easzlab/kubeasz/issues)和[PRs](docs/mixes/HowToContribute.md)参与维护项目！感谢您的关注与支持！
 - [如何 PR](docs/mixes/HowToContribute.md)
 - [如何捐赠](docs/mixes/donate.md)
 

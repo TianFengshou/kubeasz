@@ -1,5 +1,7 @@
 # kube-router 网络组件
 
+(以下文档暂未更新，以插件官网文档为准)
+
 kube-router是一个简单、高效的网络插件，它提供一揽子解决方案：  
 - 基于GoBGP 提供Pod 网络互联（Routing）
 - 使用ipsets优化的iptables 提供网络策略支持（Firewall/NetworkPolicy）
@@ -9,7 +11,7 @@ kube-router是一个简单、高效的网络插件，它提供一揽子解决方
 
 ## 配置
 
-本项目提供多种网络插件可选，如果需要安装kube-router，请在/etc/ansible/hosts文件中设置变量 `CLUSTER_NETWORK="kube-router"`，更多设置请查看`roles/kube-router/defaults/main.yml`
+本项目提供多种网络插件可选，如果需要安装kube-router，请在/etc/kubeasz/hosts文件中设置变量 `CLUSTER_NETWORK="kube-router"`，更多设置请查看`roles/kube-router/defaults/main.yml`
 
 - kube-router需要在所有master节点和node节点安装
 

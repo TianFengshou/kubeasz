@@ -1,6 +1,6 @@
 # 禁用系统swap
 - name: 禁用系统 swap
-  shell: "swapoff -a && sysctl -w vm.swappiness=0"
+  shell: "source /etc/profile; swapoff -a && sysctl -w vm.swappiness=0"
   ignore_errors: true
 
 - name: 删除fstab swap 相关配置
@@ -10,18 +10,6 @@
     state: absent
     backup: 'yes'
 
-- name: 转换内核版本为浮点数
-  set_fact:
-     KERNEL_VER: "{{ ansible_kernel.split('-')[0].split('.')[0]|int + ansible_kernel.split('-')[0].split('.')[1]|int/100 }}"
-
-- name: 设置 nf_conntrack 模块名
-  set_fact: NF_CONNTRACK="nf_conntrack"
-  when: "KERNEL_VER|float >= 4.19"
-
-- name: 设置 nf_conntrack_ipv4 模块名
-  set_fact: NF_CONNTRACK="nf_conntrack_ipv4"
-  when: "KERNEL_VER|float < 4.19"
-
 - name: 加载内核模块
   modprobe: name={{ item }} state=present
   with_items:
@@ -30,8 +18,12 @@
     - ip_vs_rr
     - ip_vs_wrr
     - ip_vs_sh
-    - "{{ NF_CONNTRACK }}"
+    - nf_conntrack
   ignore_errors: true
+
+- name: 尝试加载nf_conntrack_ipv4
+  shell: 'modprobe nf_conntrack_ipv4 || echo "NoFound"'
+  register: NF_CONNTRACK_IPV4
 
 - name: 启用systemd自动加载模块服务
   service: name=systemd-modules-load enabled=yes
@@ -45,8 +37,41 @@
 - name: 设置系统参数
   template: src=95-k8s-sysctl.conf.j2 dest=/etc/sysctl.d/95-k8s-sysctl.conf
 
+- name: 查看是否需要设置 fs.may_detach_mounts
+  stat:
+    path: /proc/sys/fs/may_detach_mounts
+    get_attributes: no
+    get_checksum: no
+    get_mime: no
+  register: fs_may_detach_mounts
+  ignore_errors: true
+
+- name: 当需要时，设置 fs.may_detach_mounts 为 1
+  sysctl:
+    sysctl_file: "/etc/sysctl.d/95-k8s-sysctl.conf"
+    name: fs.may_detach_mounts
+    value: 1
+    state: present
+    reload: yes
+  when: fs_may_detach_mounts.stat.exists|bool
+
+- name: 查看是否需要设置 net.ipv4.tcp_tw_recycle
+  stat:
+    path: /proc/sys/net/ipv4/tcp_tw_recycle
+  register: tcp_tw_recycle
+  ignore_errors: true
+
+- name: 设置tcp_tw_recycle
+  sysctl:
+    sysctl_file: "/etc/sysctl.d/95-k8s-sysctl.conf"
+    name: net.ipv4.tcp_tw_recycle
+    value: 0
+    state: present
+    reload: yes
+  when: tcp_tw_recycle.stat.exists|bool
+
 - name: 生效系统参数
-  shell: "sysctl -p /etc/sysctl.d/95-k8s-sysctl.conf"
+  shell: "source /etc/profile; sysctl -p /etc/sysctl.d/95-k8s-sysctl.conf"
   ignore_errors: true
 
 # 设置系统 ulimits

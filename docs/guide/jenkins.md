@@ -1,5 +1,7 @@
 # Jenkins CI/CD
 
+**此文档已过期，仅留档**
+
 ## 前言
 本文档介绍如何快速通过K8s集群实现Jenkins 动态Slave CI/CD流程。
 
@@ -23,7 +25,7 @@
 ```
 helm install manifests/jenkins/ --name jenkins
 ```
-如果通过/etc/ansible/roles/helm/helm.yml安装的helm，安装过程会出现如下错误
+如果通过/etc/kubeasz/roles/helm/helm.yml安装的helm，安装过程会出现如下错误
 
 ``` bash
 E0703 08:40:22.376225   19888 portforward.go:331] an error occurred forwarding 41655 -> 44134: error forwarding port 44134 to pod 5098414beaaa07140a4ba3240690b1ce989ece01e5db33db65eec83bd64bdedf, uid : exit status 1: 2018/07/03 08:40:22 socat[19991] E write(5, 0x1aec120, 3424): Connection reset by peer

@@ -1,5 +1,7 @@
 ## Ingress简介
 
+本文档已过期，安装最新版本，请参考相关官方文档。
+
 ingress就是从外部访问k8s集群的入口，将用户的URL请求转发到不同的service上。ingress相当于nginx反向代理服务器，它包括的规则定义就是URL的路由信息；它的实现需要部署`Ingress controller`(比如 [traefik](https://github.com/containous/traefik) [ingress-nginx](https://github.com/kubernetes/ingress-nginx) 等)，`Ingress controller`通过apiserver监听ingress和service的变化，并根据规则配置负载均衡并提供访问入口，达到服务发现的作用。
 
 - 未配置ingress：
@@ -24,7 +26,7 @@ Traefik 提供了一个简单好用 `Ingress controller`，下文侧重讲解 in
 #### 安装 traefik ingress-controller
 
 ``` bash
-kubectl create -f /etc/ansible/manifests/ingress/traefik/traefik-ingress.yaml
+kubectl create -f /etc/kubeasz/manifests/ingress/traefik/traefik-ingress.yaml
 ```
 + 注意需要配置 `RBAC`授权
 + 注意`trafik pod`中 `80`端口为 traefik ingress-controller的服务端口，`8080`端口为 traefik 的管理WEB界面；为后续配置方便指定`80` 端口暴露`NodePort`端口为 `23456`(对应于在hosts配置中`NODE_PORT_RANGE`范围内可用端口)
@@ -56,7 +58,7 @@ test-hello   1         1         1            1           56s
 NAME         TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE
 test-hello   ClusterIP   10.68.124.115   <none>        80/TCP    1m
 ```
-+ 然后为这个应用创建 ingress，`kubectl create -f /etc/ansible/manifests/ingress/test-hello.ing.yaml`
++ 然后为这个应用创建 ingress，`kubectl create -f /etc/kubeasz/manifests/ingress/test-hello.ing.yaml`
 
 ``` bash
 # test-hello.ing.yaml内容
@@ -79,7 +81,7 @@ spec:
 
 #### 为 traefik WEB 管理页面创建 ingress 规则 
 
-`kubectl create -f /etc/ansible/manifests/ingress/traefik/traefik-ui.ing.yaml`
+`kubectl create -f /etc/kubeasz/manifests/ingress/traefik/traefik-ui.ing.yaml`
 
 ``` bash
 # traefik-ui.ing.yaml内容
@@ -114,9 +116,9 @@ spec:
 
 ``` bash
 # 修改traefik-ingress 使用 LoadBalancer服务
-$ sed -i 's/NodePort$/LoadBalancer/g' /etc/ansible/manifests/ingress/traefik/traefik-ingress.yaml
+$ sed -i 's/NodePort$/LoadBalancer/g' /etc/kubeasz/manifests/ingress/traefik/traefik-ingress.yaml
 # 创建traefik-ingress
-$ kubectl apply -f /etc/ansible/manifests/ingress/traefik/traefik-ingress.yaml
+$ kubectl apply -f /etc/kubeasz/manifests/ingress/traefik/traefik-ingress.yaml
 # 验证
 $ kubectl get svc --all-namespaces |grep traefik
 kube-system   traefik-ingress-service   LoadBalancer   10.68.163.243   192.168.1.241   80:23456/TCP,8080:37088/TCP   1m

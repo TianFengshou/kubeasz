@@ -8,10 +8,10 @@
 
 ``` bash
 # 部署dashboard 主yaml配置文件
-$ kubectl create -f /etc/ansible/manifests/dashboard/1.6.3/kubernetes-dashboard.yaml
+$ kubectl create -f /etc/kubeasz/manifests/dashboard/1.6.3/kubernetes-dashboard.yaml
 # 部署基本密码认证配置[可选]，密码文件位于 /etc/kubernetes/ssl/basic-auth.csv
-$ kubectl create -f /etc/ansible/manifests/dashboard/1.6.3/ui-admin-rbac.yaml
-$ kubectl create -f /etc/ansible/manifests/dashboard/1.6.3/ui-read-rbac.yaml
+$ kubectl create -f /etc/kubeasz/manifests/dashboard/1.6.3/ui-admin-rbac.yaml
+$ kubectl create -f /etc/kubeasz/manifests/dashboard/1.6.3/ui-read-rbac.yaml
 ```
 
 请在另外窗口打开 [kubernetes-dashboard.yaml](../../manifests/dashboard/1.6.3/kubernetes-dashboard.yaml)
@@ -42,7 +42,7 @@ kubectl logs kubernetes-dashboard-86bd8778bf-w4974 -n kube-system
 + 启用 `TLS认证` `RBAC授权`等安全特性
 + 关闭 apiserver非安全端口8080的外部访问`--insecure-bind-address=127.0.0.1`
 + 关闭匿名认证`--anonymous-auth=false`
-+ 补充启用基本密码认证 `--basic-auth-file=/etc/kubernetes/ssl/basic-auth.csv`，[密码文件模板](../../roles/kube-master/templates/basic-auth.csv.j2)中按照每行(密码,用户名,序号)的格式，可以定义多个用户
++ 补充启用基本密码认证 `--token-auth-file=/etc/kubernetes/ssl/basic-auth.csv`，[密码文件模板](../../roles/kube-master/templates/basic-auth.csv.j2)中按照每行(密码,用户名,序号)的格式，可以定义多个用户
 
 #### 1. 临时访问：使用 `http://NodeIP:NodePort` 方式直接访问 dashboard，生产环境建议关闭该途径
 

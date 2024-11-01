@@ -1,6 +1,6 @@
 kind: KubeletConfiguration
 apiVersion: kubelet.config.k8s.io/v1beta1
-address: {{ inventory_hostname }}
+address: 0.0.0.0
 authentication:
   anonymous:
     enabled: false
@@ -14,10 +14,14 @@ authorization:
   webhook:
     cacheAuthorizedTTL: 5m0s
     cacheUnauthorizedTTL: 30s
-cgroupDriver: cgroupfs
+cgroupDriver: {{ CGROUP_DRIVER }} 
 cgroupsPerQOS: true
 clusterDNS:
+{% if ENABLE_LOCAL_DNS_CACHE %}
+- {{ LOCAL_DNS_CACHE }}
+{% else %}
 - {{ CLUSTER_DNS_SVC_IP }}
+{% endif %}
 clusterDomain: {{ CLUSTER_DNS_DOMAIN }}
 configMapAndSecretChangeDetectionStrategy: Watch
 containerLogMaxFiles: 3 
@@ -34,48 +38,51 @@ eventBurst: 10
 eventRecordQPS: 5
 evictionHard:
   imagefs.available: 15%
-  memory.available: 200Mi
+  memory.available: 300Mi
   nodefs.available: 10%
   nodefs.inodesFree: 5%
 evictionPressureTransitionPeriod: 5m0s
 failSwapOn: true
 fileCheckFrequency: 40s
 hairpinMode: hairpin-veth 
-healthzBindAddress: {{ inventory_hostname }}
+healthzBindAddress: 0.0.0.0
 healthzPort: 10248
 httpCheckFrequency: 40s
 imageGCHighThresholdPercent: 85
 imageGCLowThresholdPercent: 80
 imageMinimumGCAge: 2m0s
 {% if KUBE_RESERVED_ENABLED == "yes" %}
-kubeReservedCgroup: /system.slice/kubelet.service
-kubeReserved: {{ KUBE_RESERVED }}
+kubeReservedCgroup: /podruntime.slice
+kubeReserved:
+  cpu: 500m
+  memory: 1000Mi
+  pid: "1000"
 {% endif %}
 kubeAPIBurst: 100
 kubeAPIQPS: 50
 makeIPTablesUtilChains: true
 maxOpenFiles: 1000000
+maxParallelImagePulls: 5
 maxPods: {{ MAX_PODS }}
 nodeLeaseDurationSeconds: 40
 nodeStatusReportFrequency: 1m0s
 nodeStatusUpdateFrequency: 10s
 oomScoreAdj: -999
-podPidsLimit: -1
+podPidsLimit: {{ POD_MAX_PIDS }}
 port: 10250
 # disable readOnlyPort 
 readOnlyPort: 0
-{% if ansible_distribution_release == "bionic" %}
-resolvConf: /run/systemd/resolve/resolv.conf
-{% else %}
 resolvConf: /etc/resolv.conf
-{% endif %}
 runtimeRequestTimeout: 2m0s
-serializeImagePulls: true
+serializeImagePulls: false
 streamingConnectionIdleTimeout: 4h0m0s
 syncFrequency: 1m0s
 {% if SYS_RESERVED_ENABLED == "yes" %}
 systemReservedCgroup: /system.slice
-systemReserved: {{ SYS_RESERVED }}
+systemReserved:
+  cpu: 500m
+  memory: 1000Mi
+  pid: "5000"
 {% endif %}
 tlsCertFile: {{ ca_dir }}/kubelet.pem
 tlsPrivateKeyFile: {{ ca_dir }}/kubelet-key.pem
